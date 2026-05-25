@@ -31,6 +31,21 @@ measure what the multi-agent design actually buys us.
 
 ---
 
+## Tech stack
+
+| Layer | Choice | Why |
+|---|---|---|
+| LLM client | `anthropic>=0.40` (Python SDK) | Direct tool-use loop. No orchestration framework on top — that's the whole point of this control implementation. |
+| HTTP | `httpx>=0.27` | Used by the Workday client for paginated POSTs. |
+| CLI | `rich>=13.7` | Prompt styling and result summary. |
+| Config | `python-dotenv>=1.0` | Loads `ANTHROPIC_API_KEY` from `.env`. |
+| Storage | stdlib `csv` + `sqlite3` | No third-party DB. SQLite ships with Python. |
+| Tests | `pytest>=8.0` (dev) | All offline; no live HTTP or Anthropic calls. |
+| Build | `hatchling` | Minimal PEP 517 backend. |
+| Python | `>=3.11` | Modern type hints. |
+
+What's **not** here: no LangChain, no CrewAI, no graph library, no message queue, no workflow engine. The implementation is `anthropic.Anthropic().messages.create(...)` inside a `while` loop — roughly 90 lines of orchestration in `chatbot.py`.
+
 ## 2. Why a single-call architecture
 
 The thesis is simple: for a **linear pipeline of four tool calls**, an
